@@ -13,7 +13,7 @@ import com.android.settingslib.spa.debug.UiModePreviews
 import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.edith.ota.R
 
-private val AnimationSize = 260.dp
+private val AnimationSize = 320.dp
 
 @Composable
 fun UpdateCheckAnimation(modifier: Modifier = Modifier) {
