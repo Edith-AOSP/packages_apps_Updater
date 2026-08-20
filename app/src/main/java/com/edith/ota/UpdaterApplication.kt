@@ -11,6 +11,7 @@ import com.android.settingslib.spa.framework.common.SpaEnvironment
 import com.android.settingslib.spa.framework.common.SpaEnvironmentFactory
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import com.edith.ota.certifiedprops.CertifiedPropsRepository
 import com.edith.ota.data.AppStateRepository
 import com.edith.ota.data.ChangelogRepository
 import com.edith.ota.data.UpdatesRepository
@@ -37,6 +38,7 @@ class UpdaterApplication : Application() {
     val notificationHelper by lazy { NotificationHelper(applicationContext) }
     val appStateRepository by lazy { AppStateRepository(applicationContext) }
     val changelogRepository by lazy { ChangelogRepository(applicationContext) }
+    val certifiedPropsRepository by lazy { CertifiedPropsRepository(applicationContext) }
     val userPreferencesRepository by lazy { UserPreferencesRepository(applicationContext) }
     val updatesRepository by lazy {
         UpdatesRepository(
