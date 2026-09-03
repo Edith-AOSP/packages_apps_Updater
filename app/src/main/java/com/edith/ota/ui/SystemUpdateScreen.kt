@@ -8,6 +8,7 @@
 package com.edith.ota.ui
 
 import android.content.Intent
+import android.os.Build
 import android.text.format.DateFormat
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Box
@@ -90,6 +91,7 @@ fun SystemUpdateScreen(
     updateItem: UpdateItemState? = null,
     changelogState: ChangelogState = ChangelogState.Idle,
     onUpdateAction: (UpdateAction) -> Unit = {},
+    onDebugClick: (() -> Unit)? = null,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -101,6 +103,7 @@ fun SystemUpdateScreen(
                 onPreferencesClick = onPreferencesClick,
                 updateOverflowActions = updateItem?.actions?.overflow ?: emptyList(),
                 onUpdateAction = onUpdateAction,
+                onDebugClick = onDebugClick,
             )
         },
         bottomBar = {
@@ -393,6 +396,7 @@ private fun SystemUpdateTopBar(
     onPreferencesClick: () -> Unit,
     updateOverflowActions: List<UpdateAction> = emptyList(),
     onUpdateAction: (UpdateAction) -> Unit = {},
+    onDebugClick: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
@@ -476,6 +480,15 @@ private fun SystemUpdateTopBar(
                         onClick = {
                             menuExpanded = false
                             onUpdateAction(action)
+                        },
+                    )
+                }
+                if (Build.IS_DEBUGGABLE && onDebugClick != null) {
+                    DropdownMenuItem(
+                        text = { Text("UI tester") },
+                        onClick = {
+                            menuExpanded = false
+                            onDebugClick()
                         },
                     )
                 }
