@@ -15,7 +15,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -192,10 +191,6 @@ private fun UpdateDetails(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        item.progress?.let { progress ->
-            UpdateProgress(progress)
-        }
-
         Text(
             text = "${item.buildVersion} - ${item.buildDate}",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -266,49 +261,6 @@ private fun UpdateDetails(
 }
 
 @Composable
-private fun ColumnScope.UpdateProgress(progress: ProgressState) {
-    when (progress) {
-        is ProgressState.Determinate -> {
-            LinearWavyProgressIndicator(
-                progress = { progress.percent / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-            )
-            val caption = listOf(progress.downloadedSize, progress.eta)
-                .filter { it.isNotEmpty() }
-                .joinToString(" • ")
-            if (caption.isNotEmpty()) {
-                Text(
-                    text = caption,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 12.dp),
-                )
-            }
-        }
-
-        ProgressState.Indeterminate -> {
-            LinearWavyProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-            )
-            Text(
-                text = stringResource(R.string.downloading_installing_caption),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 12.dp),
-            )
-        }
-    }
-}
-
-@Composable
 private fun UpdateActionButtons(
     item: UpdateItemState,
     onAction: (UpdateAction) -> Unit,
@@ -363,18 +315,79 @@ private fun LoadingActionBar(
     val primary = item.actions.primary
     val secondary = item.actions.secondary
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        secondary?.let { cancel ->
+        val progress = item.progress
+        val caption = when (progress) {
+            is ProgressState.Determinate -> listOf(progress.downloadedSize, progress.eta)
+                .filter { it.isNotEmpty() }
+                .joinToString(" • ")
+
+            else -> ""
+        }
+        if (caption.isNotEmpty()) {
+            Text(
+                text = caption,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            secondary?.let { cancel ->
+                FilledTonalIconButton(
+                    onClick = { onAction(cancel) },
+                    enabled = cancel.enabled,
+                    modifier = Modifier.size(ButtonHeight),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = cancel.type.title(context),
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(ButtonHeight / 2))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .height(ButtonHeight)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                when (progress) {
+                    is ProgressState.Determinate -> LinearWavyProgressIndicator(
+                        progress = { progress.percent / 100f },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
+                    else -> LinearWavyProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
             FilledTonalIconButton(
-                onClick = { onAction(cancel) },
-                enabled = cancel.enabled,
+                onClick = { onAction(primary) },
+                enabled = primary.enabled,
                 modifier = Modifier.size(ButtonHeight),
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -382,43 +395,11 @@ private fun LoadingActionBar(
                 ),
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = cancel.type.title(context),
+                    imageVector = loadingActionIcon(primary.type),
+                    contentDescription = primary.type.title(context),
                     modifier = Modifier.size(28.dp),
                 )
             }
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(ButtonHeight / 2))
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .height(ButtonHeight)
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            LinearWavyProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-        FilledTonalIconButton(
-            onClick = { onAction(primary) },
-            enabled = primary.enabled,
-            modifier = Modifier.size(ButtonHeight),
-            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        ) {
-            Icon(
-                imageVector = loadingActionIcon(primary.type),
-                contentDescription = primary.type.title(context),
-                modifier = Modifier.size(28.dp),
-            )
         }
     }
 }
