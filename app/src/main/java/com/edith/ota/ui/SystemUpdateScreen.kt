@@ -33,7 +33,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -57,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -112,15 +116,18 @@ fun SystemUpdateScreen(
             )
         },
         bottomBar = {
-            if (isBusy) {
-                BusyIndicatorBar()
-            } else if (updateItem != null) {
-                UpdateActionButtons(
-                    item = updateItem,
+            val item = updateItem
+            when {
+                isBusy -> BusyIndicatorBar()
+                item != null && item.isLoading -> LoadingActionBar(
+                    item = item,
                     onAction = onUpdateAction,
                 )
-            } else {
-                CheckForUpdateButton(
+                item != null -> UpdateActionButtons(
+                    item = item,
+                    onAction = onUpdateAction,
+                )
+                else -> CheckForUpdateButton(
                     enabled = canCheckForUpdates,
                     onClick = onCheckClick,
                 )
@@ -345,6 +352,78 @@ private fun UpdateActionButtons(
             )
         }
     }
+}
+
+@Composable
+private fun LoadingActionBar(
+    item: UpdateItemState,
+    onAction: (UpdateAction) -> Unit,
+) {
+    val context = LocalContext.current
+    val primary = item.actions.primary
+    val secondary = item.actions.secondary
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        secondary?.let { cancel ->
+            FilledTonalIconButton(
+                onClick = { onAction(cancel) },
+                enabled = cancel.enabled,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = cancel.type.title(context),
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(ButtonHeight / 2))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .width(160.dp)
+                .height(ButtonHeight),
+            contentAlignment = Alignment.Center,
+        ) {
+            UpdateCheckAnimation(size = 40.dp)
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+        FilledTonalIconButton(
+            onClick = { onAction(primary) },
+            enabled = primary.enabled,
+            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+        ) {
+            Icon(
+                imageVector = loadingActionIcon(primary.type),
+                contentDescription = primary.type.title(context),
+            )
+        }
+    }
+}
+
+private fun loadingActionIcon(type: UpdateActionType): ImageVector = when (type) {
+    UpdateActionType.PAUSE_DOWNLOAD,
+    UpdateActionType.PAUSE_INSTALL -> Icons.Filled.Pause
+
+    UpdateActionType.RESUME_DOWNLOAD,
+    UpdateActionType.RESUME_INSTALL -> Icons.Filled.PlayArrow
+
+    else -> Icons.Filled.Pause
 }
 
 @Composable
