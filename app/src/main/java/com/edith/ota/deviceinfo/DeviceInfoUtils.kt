@@ -54,8 +54,8 @@ object DeviceInfoUtils : SettingsLibDeviceInfoUtils() {
     // Debug-only UI tester gate: requires both a debuggable build and the
     // "debug.updater" system property to be explicitly enabled.
     @JvmStatic
-    val isDebugUpdaterEnabled: Boolean =
-        Build.IS_DEBUGGABLE && SystemProperties.getBoolean(PROP_DEBUG_UPDATER, false)
+    val isDebugUpdaterEnabled: Boolean
+        get() = Build.IS_DEBUGGABLE && SystemProperties.getBoolean(PROP_DEBUG_UPDATER, false)
 
     // Mutable at runtime
     @JvmStatic
