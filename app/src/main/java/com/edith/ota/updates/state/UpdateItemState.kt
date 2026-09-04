@@ -6,7 +6,6 @@
 package com.edith.ota.updates.state
 
 import androidx.annotation.StringRes
-import com.edith.ota.updates.action.UpdateActionType
 import com.edith.ota.updates.action.UpdateActions
 
 data class UpdateItemState(
@@ -25,14 +24,9 @@ data class UpdateItemState(
     val progress: ProgressState?,
     val actions: UpdateActions,
 ) {
-    /** True while an operation is actively running (download/install in progress). */
+    /** True while an operation is actively running (download/verify/install in progress). */
     val isLoading: Boolean
-        get() = actions.primary.type in setOf(
-            UpdateActionType.PAUSE_DOWNLOAD,
-            UpdateActionType.RESUME_DOWNLOAD,
-            UpdateActionType.PAUSE_INSTALL,
-            UpdateActionType.RESUME_INSTALL,
-        )
+        get() = progress != null
 }
 
 sealed interface ProgressState {
