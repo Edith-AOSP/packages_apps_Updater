@@ -191,13 +191,6 @@ private fun UpdateDetails(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = "${item.buildVersion} - ${item.buildDate}",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 32.dp),
-        )
-
         when (changelogState) {
             ChangelogState.Idle -> Unit
             ChangelogState.Loading -> Text(
@@ -322,6 +315,13 @@ private fun LoadingActionBar(
             .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Text(
+            text = "${item.buildVersion} - ${item.buildDate}",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+
         val progress = item.progress
         val caption = when (progress) {
             is ProgressState.Determinate -> listOf(progress.downloadedSize, progress.eta)
