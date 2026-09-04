@@ -17,6 +17,7 @@ object DeviceInfoUtils : SettingsLibDeviceInfoUtils() {
     private const val PROP_BUILD_DATE = "ro.build.date.utc"
     private const val PROP_BUILD_TYPE = "ro.edith.build.type"
     private const val PROP_BUILD_VERSION = "ro.edith.version"
+    private const val PROP_VERSION_CODENAME = "ro.edith.version_codename"
     private const val PROP_DEVICE = "ro.edith.device"
     private const val PROP_OTA_BRANCH = "ro.edith.version"
     private const val PROP_UPDATE_RECOVERY = "persist.vendor.recovery_update"
@@ -33,6 +34,9 @@ object DeviceInfoUtils : SettingsLibDeviceInfoUtils() {
 
     @JvmStatic
     val buildVersion: String = SystemProperties.get(PROP_BUILD_VERSION, "")
+
+    @JvmStatic
+    val versionCodename: String = SystemProperties.get(PROP_VERSION_CODENAME, "").replace('_', ' ')
 
     @JvmStatic
     val device: String = SystemProperties.get(PROP_DEVICE)

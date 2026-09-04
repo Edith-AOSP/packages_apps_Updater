@@ -11,6 +11,9 @@ import android.content.Intent
 import android.os.Build
 import android.text.format.DateFormat
 import android.text.format.DateUtils
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -20,9 +23,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,12 +55,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import com.android.settingslib.spa.debug.UiModePreviews
 import com.android.settingslib.spa.framework.theme.SettingsTheme
@@ -66,12 +75,10 @@ import com.edith.ota.updates.action.UpdateAction
 import com.edith.ota.updates.action.UpdateActionType
 import com.edith.ota.updates.state.ProgressState
 import com.edith.ota.updates.state.UpdateItemState
-import com.edith.ota.util.StringUtil
 import java.util.Date
 
 private val ContentMaxWidth = 560.dp
 private val HorizontalPadding = 24.dp
-private val IconSize = 48.dp
 private val ButtonHeight = 56.dp
 
 @Composable
@@ -81,7 +88,6 @@ fun SystemUpdateScreen(
     supportingTextIsError: Boolean = false,
     isBusy: Boolean,
     canCheckForUpdates: Boolean,
-    showDeviceInfo: Boolean,
     lastCheckedTimestamp: Long,
     onBackClick: () -> Unit,
     onCheckClick: () -> Unit,
@@ -127,9 +133,9 @@ fun SystemUpdateScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
             ) {
-                Column(modifier = Modifier.widthIn(max = ContentMaxWidth)) {
+                Column(modifier = Modifier.fillMaxWidth().widthIn(max = ContentMaxWidth)) {
                     ScreenHeader(headline)
                 }
                 Box(
@@ -149,9 +155,9 @@ fun SystemUpdateScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
         ) {
-            Column(modifier = Modifier.widthIn(max = ContentMaxWidth)) {
+            Column(modifier = Modifier.fillMaxWidth().widthIn(max = ContentMaxWidth)) {
                 ScreenHeader(headline)
 
                 supportingText?.let {
@@ -163,16 +169,6 @@ fun SystemUpdateScreen(
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
                         },
-                        modifier = Modifier.padding(
-                            start = HorizontalPadding,
-                            top = 32.dp,
-                            end = HorizontalPadding,
-                        ),
-                    )
-                }
-
-                if (showDeviceInfo) {
-                    DeviceInfoText(
                         modifier = Modifier.padding(
                             start = HorizontalPadding,
                             top = 32.dp,
@@ -362,7 +358,7 @@ private fun UpdateActionButtons(
             enabled = primary.enabled,
             modifier = Modifier
                 .widthIn(max = ContentMaxWidth)
-                .fillMaxWidth()
+                .fillMaxWidth(0.8f)
                 .height(ButtonHeight),
             shape = RoundedCornerShape(ButtonHeight / 2),
         ) {
@@ -376,17 +372,97 @@ private fun UpdateActionButtons(
 
 @Composable
 private fun ScreenHeader(headline: String) {
+    Image(
+        painter = painterResource(R.drawable.ic_edith_logo),
+        contentDescription = null,
+        modifier = Modifier
+            .padding(
+                start = HorizontalPadding,
+                top = 32.dp,
+                end = HorizontalPadding,
+            )
+            .width(88.dp),
+    )
     Text(
-        text = headline,
+        text = stringResource(R.string.brand_name).uppercase(),
         style = MaterialTheme.typography.displaySmall,
-        fontFamily = DisplaySmallEmphasizedFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 6.sp,
         color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 1,
+        modifier = Modifier
+            .offset(x = (-1.5).dp)
+            .padding(
+                start = HorizontalPadding,
+                top = 24.dp,
+                end = HorizontalPadding,
+            )
+            .graphicsLayer {
+                scaleX = 1.2f
+                transformOrigin = TransformOrigin(0f, 0.5f)
+            },
+    )
+    DeviceInfoText(
         modifier = Modifier.padding(
             start = HorizontalPadding,
-            top = 20.dp,
+            top = 4.dp,
             end = HorizontalPadding,
         ),
     )
+    Text(
+        text = headline,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(
+            start = HorizontalPadding,
+            top = 24.dp,
+            end = HorizontalPadding,
+        ),
+    )
+}
+
+@Composable
+private fun DeviceInfoText(modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = DeviceInfoUtils.buildVersion,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            val buildType = DeviceInfoUtils.buildType
+            if (buildType.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = buildType,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+        val codename = DeviceInfoUtils.versionCodename
+        if (codename.isNotEmpty()) {
+            Text(
+                text = codename,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+    }
 }
 
 @Composable
@@ -420,15 +496,6 @@ private fun SystemUpdateTopBar(
                 contentDescription = stringResource(R.string.action_back),
             )
         }
-
-        Icon(
-            painter = painterResource(R.drawable.ic_system_update),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(IconSize),
-            tint = MaterialTheme.colorScheme.primary,
-        )
 
         Box(modifier = Modifier.align(Alignment.CenterEnd)) {
             FilledTonalIconButton(
@@ -514,7 +581,7 @@ private fun CheckForUpdateButton(
             enabled = enabled,
             modifier = Modifier
                 .widthIn(max = ContentMaxWidth)
-                .fillMaxWidth()
+                .fillMaxWidth(0.8f)
                 .height(ButtonHeight),
             shape = RoundedCornerShape(ButtonHeight / 2),
         ) {
@@ -523,23 +590,6 @@ private fun CheckForUpdateButton(
                 style = MaterialTheme.typography.titleMedium,
             )
         }
-    }
-}
-
-@Composable
-private fun DeviceInfoText(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val locale = remember(context, configuration.locales) { StringUtil.getCurrentLocale(context) }
-    val securityPatch = remember(locale) {
-        runCatching {
-            StringUtil.formatSecurityPatchFullDate(context, DeviceInfoUtils.buildSecurityPatch)
-        }.getOrDefault(DeviceInfoUtils.buildSecurityPatch)
-    }
-
-    Column(modifier = modifier) {
-        InfoLine(stringResource(R.string.header_android_version_full, DeviceInfoUtils.androidVersion))
-        InfoLine(stringResource(R.string.header_security_update_full, securityPatch))
     }
 }
 
@@ -585,7 +635,6 @@ private fun SystemUpdateScreenUpToDatePreview() {
             supportingText = null,
             isBusy = false,
             canCheckForUpdates = true,
-            showDeviceInfo = false,
             lastCheckedTimestamp = 1_754_000_000_000L,
             onBackClick = {},
             onCheckClick = {},
@@ -604,7 +653,6 @@ private fun SystemUpdateScreenCheckingPreview() {
             supportingText = null,
             isBusy = true,
             canCheckForUpdates = false,
-            showDeviceInfo = false,
             lastCheckedTimestamp = 0L,
             onBackClick = {},
             onCheckClick = {},

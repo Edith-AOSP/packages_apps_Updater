@@ -188,7 +188,6 @@ private fun UpdatesScaffoldContent(
                 checkUiState.displayedState is UpdatesCheckState.Error,
         isBusy = isBusy,
         canCheckForUpdates = model.canCheckForUpdates,
-        showDeviceInfo = isIdleAndEmpty,
         lastCheckedTimestamp = if (isIdleAndEmpty) model.lastCheckedTimestamp else 0L,
         onBackClick = onBackClick,
         onCheckClick = onRefreshClick,

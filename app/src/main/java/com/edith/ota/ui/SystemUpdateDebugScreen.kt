@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.edith.ota.R
 import com.edith.ota.data.ChangelogState
+import com.edith.ota.deviceinfo.DeviceInfoUtils
 import com.edith.ota.updates.action.UpdateAction
 import com.edith.ota.updates.action.UpdateActionType
 import com.edith.ota.updates.action.UpdateActions
@@ -38,6 +39,11 @@ import com.edith.ota.updates.state.UpdateItemState
  * OTA download or install. Each entry drives a distinct visual state (idle,
  * checking, downloading, paused, verifying, ready-to-install, installing,
  * waiting-for-reboot, and error).
+ *
+ * This harness renders the real [SystemUpdateScreen] directly, so any UI changes
+ * there (header, branding, buttons, etc.) automatically show up here. Keep the
+ * [SystemUpdateScreen] call below in sync with its parameter list whenever its
+ * signature changes.
  *
  * This composable is a no-op in release builds. Wire it into the UI during
  * development only, or rely on the [@Preview] variants in Studio.
@@ -56,7 +62,6 @@ fun SystemUpdateDebugScreen(onBackClick: () -> Unit) {
             supportingTextIsError = selected.supportingTextIsError,
             isBusy = selected.isBusy,
             canCheckForUpdates = selected.canCheckForUpdates,
-            showDeviceInfo = selected.showDeviceInfo,
             lastCheckedTimestamp = selected.lastCheckedTimestamp,
             onBackClick = onBackClick,
             onCheckClick = {},
@@ -108,7 +113,6 @@ private enum class DebugUiState(
     val supportingTextIsError: Boolean = false,
     val isBusy: Boolean = false,
     val canCheckForUpdates: Boolean = true,
-    val showDeviceInfo: Boolean = true,
     val lastCheckedTimestamp: Long = 0L,
     val changelogState: ChangelogState = ChangelogState.Idle,
     val updateItemState: UpdateItemState? = null,
@@ -116,7 +120,6 @@ private enum class DebugUiState(
     Idle(
         label = "Up to date",
         headline = "Your system is up to date",
-        showDeviceInfo = true,
     ),
     Checking(
         label = "Checking",
@@ -199,7 +202,7 @@ private fun sampleItem(
     downloadId = "debug",
     isLocal = false,
     buildDate = "September 3, 2026",
-    buildVersion = "Edith 17.0",
+    buildVersion = DeviceInfoUtils.buildVersion,
     status = "Debug sample",
     fileSize = "2.8 GB",
     androidUpdateInfo = "Android 17",
