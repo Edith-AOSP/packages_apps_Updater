@@ -375,6 +375,7 @@ private fun LoadingActionBar(
             FilledTonalIconButton(
                 onClick = { onAction(cancel) },
                 enabled = cancel.enabled,
+                modifier = Modifier.size(ButtonHeight),
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -383,6 +384,7 @@ private fun LoadingActionBar(
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = cancel.type.title(context),
+                    modifier = Modifier.size(28.dp),
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
@@ -406,6 +408,7 @@ private fun LoadingActionBar(
         FilledTonalIconButton(
             onClick = { onAction(primary) },
             enabled = primary.enabled,
+            modifier = Modifier.size(ButtonHeight),
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -414,6 +417,7 @@ private fun LoadingActionBar(
             Icon(
                 imageVector = loadingActionIcon(primary.type),
                 contentDescription = primary.type.title(context),
+                modifier = Modifier.size(28.dp),
             )
         }
     }
