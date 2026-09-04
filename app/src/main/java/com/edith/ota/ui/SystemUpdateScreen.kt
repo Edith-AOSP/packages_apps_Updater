@@ -662,7 +662,8 @@ private fun BusyIndicatorBar() {
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp)
+            .height(ButtonHeight),
         contentAlignment = Alignment.Center,
     ) {
         LinearWavyProgressIndicator(
