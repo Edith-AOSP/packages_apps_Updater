@@ -112,43 +112,21 @@ fun SystemUpdateScreen(
             )
         },
         bottomBar = {
-            if (!isBusy) {
-                if (updateItem != null) {
-                    UpdateActionButtons(
-                        item = updateItem,
-                        onAction = onUpdateAction,
-                    )
-                } else {
-                    CheckForUpdateButton(
-                        enabled = canCheckForUpdates,
-                        onClick = onCheckClick,
-                    )
-                }
+            if (isBusy) {
+                BusyIndicatorBar()
+            } else if (updateItem != null) {
+                UpdateActionButtons(
+                    item = updateItem,
+                    onAction = onUpdateAction,
+                )
+            } else {
+                CheckForUpdateButton(
+                    enabled = canCheckForUpdates,
+                    onClick = onCheckClick,
+                )
             }
         },
     ) { paddingValues ->
-        if (isBusy) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Column(modifier = Modifier.fillMaxWidth().widthIn(max = ContentMaxWidth)) {
-                    ScreenHeader(headline)
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    UpdateCheckAnimation()
-                }
-            }
-            return@Scaffold
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -589,6 +567,19 @@ private fun CheckForUpdateButton(
                 style = MaterialTheme.typography.titleMedium,
             )
         }
+    }
+}
+
+@Composable
+private fun BusyIndicatorBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        UpdateCheckAnimation(size = ButtonHeight)
     }
 }
 
