@@ -393,25 +393,34 @@ private fun LoadingActionBar(
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-            FilledTonalIconButton(
-                onClick = { onAction(primary) },
-                enabled = primary.enabled,
-                modifier = Modifier.size(ButtonHeight),
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            ) {
-                Icon(
-                    imageVector = loadingActionIcon(primary.type),
-                    contentDescription = primary.type.title(context),
-                    modifier = Modifier.size(28.dp),
-                )
+            if (isLoadingAction(primary.type)) {
+                Spacer(modifier = Modifier.width(16.dp))
+                FilledTonalIconButton(
+                    onClick = { onAction(primary) },
+                    enabled = primary.enabled,
+                    modifier = Modifier.size(ButtonHeight),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = loadingActionIcon(primary.type),
+                        contentDescription = primary.type.title(context),
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
             }
         }
     }
 }
+
+private fun isLoadingAction(type: UpdateActionType): Boolean = type in setOf(
+    UpdateActionType.PAUSE_DOWNLOAD,
+    UpdateActionType.RESUME_DOWNLOAD,
+    UpdateActionType.PAUSE_INSTALL,
+    UpdateActionType.RESUME_INSTALL,
+)
 
 private fun loadingActionIcon(type: UpdateActionType): ImageVector = when (type) {
     UpdateActionType.PAUSE_DOWNLOAD,
