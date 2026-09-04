@@ -191,6 +191,15 @@ private fun UpdateDetails(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
+        if (item.progress == null) {
+            Text(
+                text = "${item.buildVersion} - ${item.buildDate}",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 32.dp),
+            )
+        }
+
         when (changelogState) {
             ChangelogState.Idle -> Unit
             ChangelogState.Loading -> Text(
