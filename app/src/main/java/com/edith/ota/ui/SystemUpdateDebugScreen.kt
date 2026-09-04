@@ -83,7 +83,7 @@ fun SystemUpdateDebugScreen(onBackClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 88.dp),
+                .padding(end = 16.dp, bottom = 100.dp),
             horizontalAlignment = Alignment.End,
         ) {
             if (expanded) {
