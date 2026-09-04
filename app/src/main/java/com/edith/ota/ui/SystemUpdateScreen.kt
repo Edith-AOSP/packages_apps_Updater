@@ -8,7 +8,6 @@
 package com.edith.ota.ui
 
 import android.content.Intent
-import android.os.Build
 import android.text.format.DateFormat
 import android.text.format.DateUtils
 import androidx.compose.foundation.Image
@@ -550,7 +549,7 @@ private fun SystemUpdateTopBar(
                         },
                     )
                 }
-                if (Build.IS_DEBUGGABLE && onDebugClick != null) {
+                if (DeviceInfoUtils.isDebugUpdaterEnabled && onDebugClick != null) {
                     DropdownMenuItem(
                         text = { Text("UI tester") },
                         onClick = {

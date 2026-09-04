@@ -6,7 +6,6 @@
 package com.edith.ota
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +27,7 @@ import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.edith.ota.controller.UpdaterController
 import com.edith.ota.data.Update
 import com.edith.ota.data.UpdateStatus
+import com.edith.ota.deviceinfo.DeviceInfoUtils
 import com.edith.ota.preferences.PreferencesActivity
 import com.edith.ota.ui.SystemUpdateDebugScreen
 import com.edith.ota.ui.SystemUpdateScreen
@@ -163,7 +163,7 @@ private fun UpdatesScaffoldContent(
     val isIdleAndEmpty = updateItems.isEmpty() && !isBusy
 
     var showDebug by remember { mutableStateOf(false) }
-    if (Build.IS_DEBUGGABLE && showDebug) {
+    if (DeviceInfoUtils.isDebugUpdaterEnabled && showDebug) {
         SystemUpdateDebugScreen(onBackClick = { showDebug = false })
         return
     }
@@ -205,7 +205,7 @@ private fun UpdatesScaffoldContent(
                 }
             }
         },
-        onDebugClick = if (Build.IS_DEBUGGABLE) ({ showDebug = true }) else null,
+        onDebugClick = if (DeviceInfoUtils.isDebugUpdaterEnabled) ({ showDebug = true }) else null,
     )
 }
 

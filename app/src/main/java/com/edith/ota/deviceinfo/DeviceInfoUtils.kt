@@ -21,6 +21,7 @@ object DeviceInfoUtils : SettingsLibDeviceInfoUtils() {
     private const val PROP_DEVICE = "ro.edith.device"
     private const val PROP_OTA_BRANCH = "ro.edith.version"
     private const val PROP_UPDATE_RECOVERY = "persist.vendor.recovery_update"
+    private const val PROP_DEBUG_UPDATER = "debug.updater"
 
     // Read-only
     val androidVersion: String = Build.VERSION.RELEASE
@@ -49,6 +50,12 @@ object DeviceInfoUtils : SettingsLibDeviceInfoUtils() {
 
     @JvmStatic
     val otaBranch: String = SystemProperties.get(PROP_OTA_BRANCH)
+
+    // Debug-only UI tester gate: requires both a debuggable build and the
+    // "debug.updater" system property to be explicitly enabled.
+    @JvmStatic
+    val isDebugUpdaterEnabled: Boolean =
+        Build.IS_DEBUGGABLE && SystemProperties.getBoolean(PROP_DEBUG_UPDATER, false)
 
     // Mutable at runtime
     @JvmStatic

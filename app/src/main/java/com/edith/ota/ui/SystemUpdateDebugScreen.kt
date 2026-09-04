@@ -5,7 +5,6 @@
 
 package com.edith.ota.ui
 
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,7 +49,7 @@ import com.edith.ota.updates.state.UpdateItemState
  */
 @Composable
 fun SystemUpdateDebugScreen(onBackClick: () -> Unit) {
-    if (!Build.IS_DEBUGGABLE) return
+    if (!DeviceInfoUtils.isDebugUpdaterEnabled) return
 
     var selected by remember { mutableStateOf(DebugUiState.Checking) }
 
