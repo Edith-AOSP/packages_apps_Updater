@@ -393,10 +393,13 @@ private fun LoadingActionBar(
                 .clip(RoundedCornerShape(ButtonHeight / 2))
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .width(160.dp)
-                .height(ButtonHeight),
+                .height(ButtonHeight)
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            UpdateCheckAnimation(size = 40.dp)
+            LinearWavyProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -658,7 +661,11 @@ private fun BusyIndicatorBar() {
             .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        UpdateCheckAnimation(size = ButtonHeight)
+        LinearWavyProgressIndicator(
+            modifier = Modifier
+                .widthIn(max = ContentMaxWidth)
+                .fillMaxWidth(0.8f),
+        )
     }
 }
 
