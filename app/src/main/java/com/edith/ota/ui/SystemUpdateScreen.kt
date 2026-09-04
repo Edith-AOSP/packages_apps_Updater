@@ -392,9 +392,9 @@ private fun LoadingActionBar(
 
         Box(
             modifier = Modifier
+                .weight(1f)
                 .clip(RoundedCornerShape(ButtonHeight / 2))
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .width(160.dp)
                 .height(ButtonHeight)
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center,
