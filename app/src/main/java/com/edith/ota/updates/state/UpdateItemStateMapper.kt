@@ -31,6 +31,12 @@ class UpdateItemStateMapper(
         val canStreamUpdate = InstallUtils.canStreamUpdate(update, streamUpdatesEnabled)
 
         val progress = when {
+            state.isStreamingDownload -> ProgressState.Determinate(
+                percent = update.installProgress.toFloat(),
+                downloadedSize = "",
+                eta = "",
+            )
+
             state.isDownloading -> {
                 if (update.status == UpdateStatus.STARTING) {
                     ProgressState.Indeterminate
@@ -63,7 +69,11 @@ class UpdateItemStateMapper(
         }
 
         val buttonActions = when (state.phase) {
-            UpdateOperationPhase.DOWNLOADING -> ActionButtons(
+            UpdateOperationPhase.DOWNLOADING -> if (state.isStreamingDownload) ActionButtons(
+                // The payload is being fetched by UpdateEngine, so control it as an install.
+                primary = action(UpdateActionType.PAUSE_INSTALL),
+                secondary = action(UpdateActionType.CANCEL_INSTALL),
+            ) else ActionButtons(
                 primary = action(UpdateActionType.PAUSE_DOWNLOAD),
                 secondary = action(UpdateActionType.CANCEL_DOWNLOAD),
             )

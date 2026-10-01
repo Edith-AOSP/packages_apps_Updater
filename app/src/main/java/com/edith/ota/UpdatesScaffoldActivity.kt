@@ -31,6 +31,7 @@ import com.edith.ota.deviceinfo.DeviceInfoUtils
 import com.edith.ota.preferences.PreferencesActivity
 import com.edith.ota.ui.SystemUpdateDebugScreen
 import com.edith.ota.ui.SystemUpdateScreen
+import com.edith.ota.ui.common.ProgressDialog
 import com.edith.ota.updates.action.AlertDialogState
 import com.edith.ota.updates.action.UpdateActionDialog
 import com.edith.ota.updates.action.UpdateActionHandler
@@ -42,6 +43,7 @@ abstract class UpdatesScaffoldActivity : ComponentActivity() {
     private val viewModel by viewModels<UpdatesViewModel>()
     private var activeUpdaterController: UpdaterController? by mutableStateOf(null)
     private var controllerStateVersion: Int by mutableIntStateOf(0)
+    protected var importDialogVisible: Boolean by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +79,13 @@ abstract class UpdatesScaffoldActivity : ComponentActivity() {
                         },
                         onControllerStateChanged = { notifyControllerStateChanged() },
                     )
+
+                    if (importDialogVisible) {
+                        ProgressDialog(
+                            title = stringResource(R.string.local_update_import),
+                            text = stringResource(R.string.local_update_import_progress),
+                        )
+                    }
                 }
             }
         }
@@ -120,6 +129,12 @@ private fun UpdatesScaffoldContent(
         initial = true,
     )
 
+    // Room only keeps persistent statuses; use the controller's live ones.
+    val liveUpdates = remember(uiState.updates, updaterController, controllerStateVersion) {
+        val controller = updaterController ?: return@remember uiState.updates
+        uiState.updates.mapNotNull { controller.getUpdate(it.downloadId) }
+    }
+
     val updateItems = remember(
         uiState.updates,
         updaterController,
@@ -158,7 +173,7 @@ private fun UpdatesScaffoldContent(
     val model = uiState.updatesCheckModel
     val checkUiState = rememberUpdatesCheckUiState(model.state)
     val isChecking = checkUiState.displayedState is UpdatesCheckState.Checking
-    val isPreparing = uiState.updates.any { it.status == UpdateStatus.STARTING }
+    val isPreparing = liveUpdates.any { it.status == UpdateStatus.STARTING }
     val isBusy = isChecking || isPreparing
     val isIdleAndEmpty = updateItems.isEmpty() && !isBusy
 
@@ -172,7 +187,7 @@ private fun UpdatesScaffoldContent(
 
     SystemUpdateScreen(
         headline = getHeadline(
-            updates = uiState.updates,
+            updates = liveUpdates,
             displayedCheckState = checkUiState.displayedState,
             isPreparing = isPreparing,
             hasUpdateItems = updateItems.isNotEmpty(),
@@ -221,6 +236,9 @@ private fun getHeadline(
 
     updates.any { it.status == UpdateStatus.INSTALLATION_FAILED } ->
         stringResource(R.string.installing_update_error)
+
+    updates.any { it.status == UpdateStatus.INSTALLING && it.isStreamingDownload } ->
+        stringResource(R.string.downloading_update_title)
 
     updates.any { it.status == UpdateStatus.INSTALLING } ->
         stringResource(R.string.installing_update_title)

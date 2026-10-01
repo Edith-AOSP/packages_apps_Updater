@@ -15,6 +15,7 @@ data class Update(
     val file: File? = null,
     val fileSize: Long = 0,
     val isFinalizing: Boolean = false,
+    val isStreamingDownload: Boolean = false,
     val installProgress: Int = 0,
     val name: String = "",
     val osPatchLevel: String? = null,
@@ -39,6 +40,7 @@ data class Update(
     fun withFile(v: File?) = copy(file = v)
     fun withFileSize(v: Long) = copy(fileSize = v)
     fun withFinalizing(v: Boolean) = copy(isFinalizing = v)
+    fun withStreamingDownload(v: Boolean) = copy(isStreamingDownload = v)
     fun withInstallProgress(v: Int) = copy(installProgress = v)
     fun withName(v: String) = copy(name = v)
     fun withOsPatchLevel(v: String?) = copy(osPatchLevel = v)
@@ -60,6 +62,7 @@ data class Update(
         private var file: File? = null,
         private var fileSize: Long = 0,
         private var isFinalizing: Boolean = false,
+        private var isStreamingDownload: Boolean = false,
         private var installProgress: Int = 0,
         private var name: String = "",
         private var osPatchLevel: String? = null,
@@ -80,7 +83,8 @@ data class Update(
         constructor(update: Update) : this(
             update.isAvailableOnline, update.downloadId, update.downloadUrl,
             update.eta, update.file, update.fileSize, update.isFinalizing,
-            update.installProgress, update.name, update.osPatchLevel, update.osSdkLevel,
+            update.isStreamingDownload, update.installProgress, update.name, update.osPatchLevel,
+            update.osSdkLevel,
             update.payloadMetadataOffset, update.payloadMetadataSize, update.payloadOffset,
             update.payloadSize, update.payloadPropertiesOffset, update.payloadPropertiesSize,
             update.progress, update.speed, update.status, update.timestamp, update.type,
@@ -94,6 +98,7 @@ data class Update(
         fun setFile(v: File?) = apply { file = v }
         fun setFileSize(v: Long) = apply { fileSize = v }
         fun setFinalizing(v: Boolean) = apply { isFinalizing = v }
+        fun setStreamingDownload(v: Boolean) = apply { isStreamingDownload = v }
         fun setInstallProgress(v: Int) = apply { installProgress = v }
         fun setName(v: String) = apply { name = v }
         fun setOsPatchLevel(v: String?) = apply { osPatchLevel = v }
@@ -112,7 +117,8 @@ data class Update(
         fun setVersion(v: String) = apply { version = v }
         fun build() = Update(
             isAvailableOnline, downloadId, downloadUrl, eta, file, fileSize,
-            isFinalizing, installProgress, name, osPatchLevel, osSdkLevel, payloadMetadataOffset,
+            isFinalizing, isStreamingDownload, installProgress, name, osPatchLevel, osSdkLevel,
+            payloadMetadataOffset,
             payloadMetadataSize, payloadOffset, payloadSize, payloadPropertiesOffset,
             payloadPropertiesSize, progress, speed, status, timestamp, type, version,
         )

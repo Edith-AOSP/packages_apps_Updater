@@ -35,6 +35,7 @@ data class UpdateOperationState(
     val phase: UpdateOperationPhase,
     val isBusy: Boolean,
     val isFullyDownloaded: Boolean,
+    val isStreamingDownload: Boolean,
     val installBlockedReason: InstallUtils.BlockedReason,
     val canInstall: Boolean,
     val canExport: Boolean,
@@ -74,8 +75,13 @@ data class UpdateOperationState(
         fun from(controller: UpdaterController, update: Update): UpdateOperationState {
             val downloadId = update.downloadId
             val status = update.status
+            val isStreamingDownload = status == UpdateStatus.INSTALLING &&
+                    update.isStreamingDownload &&
+                    controller.isInstallingUpdate(downloadId)
             val phase = when {
                 controller.isDownloading(downloadId) -> UpdateOperationPhase.DOWNLOADING
+                // A streaming (A/B) install is still downloading the payload until it finalizes.
+                isStreamingDownload -> UpdateOperationPhase.DOWNLOADING
                 status == UpdateStatus.PAUSED -> UpdateOperationPhase.DOWNLOAD_PAUSED
                 status == UpdateStatus.PAUSED_ERROR -> UpdateOperationPhase.DOWNLOAD_ERROR
 
@@ -108,6 +114,7 @@ data class UpdateOperationState(
                 phase = phase,
                 isBusy = controller.isBusy,
                 isFullyDownloaded = isLocal || isFullyDownloaded,
+                isStreamingDownload = isStreamingDownload,
                 installBlockedReason = installBlockedReason,
                 canInstall = installBlockedReason == InstallUtils.BlockedReason.NONE,
                 canExport = phase == UpdateOperationPhase.VERIFIED && !isLocal,

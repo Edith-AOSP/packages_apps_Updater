@@ -77,6 +77,9 @@ class ABUpdateInstaller {
                     update = update.toBuilder()
                             .setInstallProgress(mProgress)
                             .setFinalizing(mFinalizing)
+                            // While UpdateEngine is still fetching the payload this is a
+                            // download; once finalizing, it is an install.
+                            .setStreamingDownload(!mFinalizing)
                             .build();
                     mUpdaterController.setUpdate(mDownloadId, update);
                     mUpdaterController.notifyInstallProgress(mDownloadId);
@@ -393,6 +396,7 @@ class ABUpdateInstaller {
                 .setStatus(UpdateStatus.INSTALLING)
                 .setInstallProgress(mProgress)
                 .setFinalizing(mFinalizing)
+                .setStreamingDownload(!mFinalizing)
                 .build());
         mUpdaterController.notifyUpdateChange(mDownloadId);
         mUpdaterController.notifyInstallProgress(mDownloadId);
