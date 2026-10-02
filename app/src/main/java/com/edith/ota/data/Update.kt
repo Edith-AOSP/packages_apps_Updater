@@ -124,6 +124,9 @@ data class Update(
         )
     }
 
+    /** True when this is the imported local package rather than a network update. */
+    fun isLocal(): Boolean = downloadId == LOCAL_ID
+
     fun hasPayloadFileRanges(): Boolean =
         payloadOffset != null && payloadSize != null &&
             payloadPropertiesOffset != null && payloadPropertiesSize != null

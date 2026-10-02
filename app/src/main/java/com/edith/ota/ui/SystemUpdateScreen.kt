@@ -77,6 +77,7 @@ import com.edith.ota.updates.action.UpdateAction
 import com.edith.ota.updates.action.UpdateActionType
 import com.edith.ota.updates.state.ProgressState
 import com.edith.ota.updates.state.UpdateItemState
+import java.text.NumberFormat
 import java.util.Date
 
 private val ContentMaxWidth = 560.dp
@@ -324,20 +325,23 @@ private fun LoadingActionBar(
             .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val progress = item.progress
+        val percentText = (progress as? ProgressState.Determinate)
+            ?.let { NumberFormat.getPercentInstance().format(it.percent / 100f) }
         Text(
-            text = "${item.buildVersion} - ${item.buildDate}",
+            text = listOfNotNull("${item.buildVersion} - ${item.buildDate}", percentText)
+                .joinToString(" • "),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp),
         )
 
-        val progress = item.progress
         val caption = when (progress) {
-            is ProgressState.Determinate -> listOf(progress.downloadedSize, progress.eta)
+            is ProgressState.Determinate -> listOf(item.status, progress.downloadedSize, progress.eta)
                 .filter { it.isNotEmpty() }
                 .joinToString(" • ")
 
-            else -> ""
+            else -> item.status
         }
         if (caption.isNotEmpty()) {
             Text(

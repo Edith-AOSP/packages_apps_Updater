@@ -396,7 +396,7 @@ public class UpdaterService extends Service {
                 mNotificationStyle.setSummaryText(null);
                 String text = UpdateInstaller.isInstalling() ?
                         getString(R.string.dialog_prepare_zip_message) :
-                        update.isStreamingDownload() ?
+                        !update.isLocal() && update.isStreamingDownload() ?
                                 getString(R.string.downloading_notification) :
                                 getString(R.string.installing_update);
                 mNotificationStyle.bigText(text);
@@ -490,7 +490,7 @@ public class UpdaterService extends Service {
         mNotificationStyle.setSummaryText(percent);
         boolean notAB = UpdateInstaller.isInstalling();
         mNotificationStyle.bigText(notAB ? getString(R.string.dialog_prepare_zip_message) :
-                update.isStreamingDownload() ?
+                !update.isLocal() && update.isStreamingDownload() ?
                         getString(R.string.downloading_notification) :
                         update.isFinalizing() ?
                                 getString(R.string.finalizing_package) :

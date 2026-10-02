@@ -75,7 +75,11 @@ data class UpdateOperationState(
         fun from(controller: UpdaterController, update: Update): UpdateOperationState {
             val downloadId = update.downloadId
             val status = update.status
-            val isStreamingDownload = status == UpdateStatus.INSTALLING &&
+            val isLocal = downloadId == Update.LOCAL_ID
+            // A local package is complete on disk and never fetched over the network, so it is
+            // never a streaming download even while UpdateEngine applies its payload.
+            val isStreamingDownload = !isLocal &&
+                    status == UpdateStatus.INSTALLING &&
                     update.isStreamingDownload &&
                     controller.isInstallingUpdate(downloadId)
             val phase = when {
@@ -107,7 +111,6 @@ data class UpdateOperationState(
             val canDelete = phase == UpdateOperationPhase.VERIFIED ||
                     phase == UpdateOperationPhase.VERIFICATION_FAILED
             val installBlockedReason = InstallUtils.getBlockedReason(update)
-            val isLocal = downloadId == Update.LOCAL_ID
             val isFullyDownloaded = controller.isFullyDownloaded(update)
 
             return UpdateOperationState(

@@ -192,15 +192,21 @@ private fun UpdatesScaffoldContent(
             isPreparing = isPreparing,
             hasUpdateItems = updateItems.isNotEmpty(),
         ),
-        supportingText = when (checkUiState.displayedState) {
-            UpdatesCheckState.NoInternet ->
+        // A present update (including an imported local one) outranks the check state, so the
+        // check-failure message is suppressed when there is an update to show.
+        supportingText = when {
+            updateItems.isNotEmpty() -> null
+            checkUiState.displayedState is UpdatesCheckState.NoInternet ->
                 stringResource(R.string.check_your_internet_connection)
 
-            UpdatesCheckState.Error -> stringResource(R.string.updates_check_failed)
+            checkUiState.displayedState is UpdatesCheckState.Error ->
+                stringResource(R.string.updates_check_failed)
+
             else -> null
         },
-        supportingTextIsError = checkUiState.displayedState is UpdatesCheckState.NoInternet ||
-                checkUiState.displayedState is UpdatesCheckState.Error,
+        supportingTextIsError = updateItems.isEmpty() &&
+                (checkUiState.displayedState is UpdatesCheckState.NoInternet ||
+                        checkUiState.displayedState is UpdatesCheckState.Error),
         isBusy = isBusy,
         canCheckForUpdates = model.canCheckForUpdates,
         lastCheckedTimestamp = if (isIdleAndEmpty) model.lastCheckedTimestamp else 0L,
@@ -237,7 +243,7 @@ private fun getHeadline(
     updates.any { it.status == UpdateStatus.INSTALLATION_FAILED } ->
         stringResource(R.string.installing_update_error)
 
-    updates.any { it.status == UpdateStatus.INSTALLING && it.isStreamingDownload } ->
+    updates.any { it.status == UpdateStatus.INSTALLING && it.isStreamingDownload && !it.isLocal() } ->
         stringResource(R.string.downloading_update_title)
 
     updates.any { it.status == UpdateStatus.INSTALLING } ->
@@ -247,10 +253,6 @@ private fun getHeadline(
 
     displayedCheckState is UpdatesCheckState.Checking ->
         stringResource(R.string.checking_for_update_title)
-
-    displayedCheckState is UpdatesCheckState.NoInternet ||
-            displayedCheckState is UpdatesCheckState.Error ->
-        stringResource(R.string.updates_check_failed_title)
 
     updates.any { it.status == UpdateStatus.DOWNLOADING } ->
         stringResource(R.string.downloading_update_title)
@@ -265,6 +267,12 @@ private fun getHeadline(
     } -> stringResource(R.string.update_paused_title)
 
     hasUpdateItems -> stringResource(R.string.update_available_title)
+
+    // Only surface the check failure when there is no update to show (an imported local update
+    // is installable offline and must not be masked by the network state).
+    displayedCheckState is UpdatesCheckState.NoInternet ||
+            displayedCheckState is UpdatesCheckState.Error ->
+        stringResource(R.string.updates_check_failed_title)
 
     else -> stringResource(R.string.system_up_to_date_title)
 }
