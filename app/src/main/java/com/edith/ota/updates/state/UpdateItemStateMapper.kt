@@ -147,6 +147,13 @@ class UpdateItemStateMapper(
                         enabled = !state.isBusy,
                     )
 
+                    // A complete local/verified package (e.g. after cancelling an install) is
+                    // still installable without a network round-trip; offer Install, not Download.
+                    state.isFullyDownloaded -> action(
+                        type = UpdateActionType.START_INSTALL,
+                        enabled = !state.isBusy,
+                    )
+
                     canStreamUpdate -> action(
                         type = UpdateActionType.START_INSTALL,
                         enabled = networkState.isOnline && !state.isBusy,
